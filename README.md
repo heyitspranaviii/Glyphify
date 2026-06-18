@@ -52,7 +52,7 @@ pip install -r requirements.txt
 **Step 1: Clone the repo**
 
 ```bash
-git clone https://github.com/pranaviii29/glyphify.git
+git clone https://github.com/pranaviii29/Glyphify.git
 cd glyphify
 ```
 
@@ -61,13 +61,13 @@ cd glyphify
 Without a style image:
 
 ```bash
-python main.py path/to/image.jpg
+python main.py path/to/image.jpg(or jpeg/png)
 ```
 
 With a style image:
 
 ```bash
-python main.py path/to/image.jpg --style path/to/style.jpg
+python main.py path/to/image.jpg(or jpeg/png) --style path/to/style.jpg(or jpeg/png)
 ```
 
 Output is saved to the `output/` folder as `.txt` and `.html`. Open the `.html` in any browser — that is the colored version.
