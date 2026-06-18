@@ -1,103 +1,121 @@
-# ASCII Style Transfer
+# Glyphify
 
-Convert any image into ASCII art — optionally styled by a second image.
+Convert any image into ASCII art using brightness mapping, edge detection, and optional histogram-based style transfer.
 
-No deep learning required. Built with Pillow, NumPy, and SciPy.
-
----
-
-## How It Works
-
-**Without a style image:**  
-Each pixel's brightness maps to a character (`@`, `#`, `+`, `.`, ` `, etc.).  
-Strong edges are replaced with directional characters (`|`, `/`, `\`, `-`).
-
-**With a style image:**  
-The style image's brightness histogram and texture density are extracted.  
-The content image's brightness values are remapped to match the style's character distribution — dark/busy styles push the output denser, light/minimal styles open it up.
+Feed it a photo and a style photo(optional) and Glyphify reconstructs the content's structure in characters, tone, and texture. Optionally pass a second image to influence how characters are distributed across the output. 
 
 ---
 
 ## Project Structure
 
-```
-ascii_style_transfer/
+glyphify/
+│
 ├── ascii_transfer/
-│   ├── charmap.py       # brightness/edge → character mappings
-│   ├── image_utils.py   # image loading, brightness, edge detection
-│   ├── style.py         # style extraction and brightness remapping
-│   ├── converter.py     # main conversion pipeline
-│   └── renderer.py      # save as .txt and .html
-├── samples/             # sample content and style images
-├── output/              # generated outputs go here
-├── main.py              # CLI entry point
+│   ├── charmap.py       →  brightness and edge angle → character mappings
+│   ├── image_utils.py   →  image loading, grayscale, Sobel edge detection
+│   ├── style.py         →  histogram extraction and brightness remapping
+│   ├── converter.py     →  main pipeline: ties all modules together
+│   └── renderer.py      →  saves output as .txt and colored .html
+│
+├── main.py              →  CLI entry point
 └── requirements.txt
-```
+
+| File | What it does |
+|---|---|
+| `charmap.py` | Maps brightness values to characters (`@#MWod+;:,. `). Maps edge angles to directional characters (`\|/-`) |
+| `image_utils.py` | Loads and resizes image. Extracts per-pixel brightness and runs Sobel filter for edge magnitude and angle |
+| `style.py` | Extracts brightness histogram and texture density from style image. Remaps content brightness toward the style distribution |
+| `converter.py` | Iterates every pixel — picks edge char or brightness char, applies style bias, collects RGB for coloring |
+| `renderer.py` | Writes the character grid to `.txt` and a styled `.html` file with per-character color spans |
 
 ---
 
-## Setup
+## Requirements
+
+- Python 3.10 or higher
+- Pillow
+- NumPy
+- SciPy
+
+Install dependencies:
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/ascii-style-transfer.git
-cd ascii-style-transfer
 pip install -r requirements.txt
 ```
 
 ---
 
-## Usage
+## How to Run
 
-**Basic (no style):**
+**Step 1: Clone the repo**
+
 ```bash
-python main.py samples/portrait.jpg
+git clone https://github.com/pranaviii29/glyphify.git
+cd glyphify
 ```
 
-**With a style image:**
+**Step 2: Run**
+
+Without a style image:
+
 ```bash
-python main.py samples/portrait.jpg --style samples/vangogh_style.jpg
+python main.py path/to/image.jpg
 ```
 
-**Custom size:**
+With a style image:
+
 ```bash
-python main.py samples/portrait.jpg --width 160 --height 80
+python main.py path/to/image.jpg --style path/to/style.jpg
 ```
 
-**All options:**
-```
-positional arguments:
-  content               Path to the content image
-
-optional arguments:
-  --style               Path to style image
-  --width               Output width in characters (default: 120)
-  --height              Output height in characters (default: 60)
-  --edge-threshold      Edge sensitivity 0.0–1.0 (default: 0.3)
-  --no-color            Disable color in HTML output
-  --output              Output directory (default: output/)
-```
-
-Outputs are saved to the `output/` folder as:
-- `name.txt` — plain text, printable anywhere
-- `name.html` — colored version, open in any browser
+Output is saved to the `output/` folder as `.txt` and `.html`. Open the `.html` in any browser — that is the colored version.
 
 ---
 
-## Style Tips
+## All Flags
 
-| Style image type | Effect on output |
-|---|---|
-| Dark, high-contrast | Dense characters, heavy shadows |
-| Light, minimal | Sparse characters, airy output |
-| Swirly/textured | Redistributed brightness, more character variety |
-| Flat/uniform | Minimal remapping, close to original |
+| Flag | Default | Description |
+|---|---|---|
+| `--style` | None | Style image to influence character distribution |
+| `--width` | 120 | Output width in characters |
+| `--height` | 60 | Output height in characters |
+| `--edge-threshold` | 0.45 | Edge sensitivity 0.0–1.0 |
+| `--no-color` | False | Disable color in HTML output |
+| `--output` | `output/` | Directory to save results |
 
 ---
 
-## Example
+## How It Works
 
-```
-python main.py samples/portrait.jpg --style samples/vangogh_style.jpg --width 120 --height 60
-```
+**Brightness mapping**
+Each pixel is converted to a brightness value between 0 and 1. That value indexes into a character ramp ordered by visual density — `@` is darkest, space is lightest.
 
-Open `output/portrait_styled_vangogh_style.html` in your browser.
+**Edge detection**
+A Sobel filter runs over the grayscale image producing an edge magnitude and angle at every pixel. Where the magnitude crosses the threshold, the brightness character is replaced with a directional one — `|` for vertical edges, `/` and `\` for diagonals, `-` for horizontal. This preserves outlines, glasses frames, hair boundaries.
+
+**Style transfer**
+The style image's brightness histogram is extracted along with its texture density (local contrast). The content image's brightness values are remapped using cumulative histogram matching toward the style's distribution. A dark busy painting pushes character weight up. A minimal image opens the output up. The blend strength is capped so the content structure is never lost.
+
+---
+
+## Tips
+
+- Portrait photos work best with `height ≈ width × 0.55`-characters are taller than wide
+- Zoom out in the browser to around 50% — ASCII art resolves at a distance
+- High contrast photos (strong lighting, glasses, hair) produce the sharpest results
+- Always open the `.html` output(the `.txt` has no color).
+
+---
+
+## Future Work
+
+- `--invert` flag to flip the brightness ramp for light-background output
+- Automatic aspect ratio correction based on detected image orientation
+- Unicode block character mode as an alternative to ASCII
+- Web UI-drag and drop image,download HTML output directly in browser
+
+---
+
+## License
+
+MIT

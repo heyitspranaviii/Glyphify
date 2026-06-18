@@ -11,16 +11,9 @@ def convert(
     style_path: str | None = None,
     width: int = 120,
     height: int = 60,
-    edge_threshold: float = 0.3,
+    edge_threshold: float = 0.45,
     colored: bool = True,
 ) -> tuple[list[list[str]], list[list[tuple]] | None]:
-    """
-    Convert a content image to ASCII art, optionally styled.
-
-    Returns:
-        chars  : 2D list of characters
-        colors : 2D list of (r, g, b) tuples in 0-255, or None if not colored
-    """
     content_img = load_image(content_path, width, height)
     brightness = get_brightness(content_img)
     edge_mag, edge_angle = get_edges(content_img)
@@ -40,12 +33,8 @@ def convert(
 
         for col in range(width):
             b = float(brightness[row, col])
-
-            # Apply style remapping if style provided
             if style:
                 b = style_bias(b, style)
-
-            # Use edge character if strong edge detected, else brightness char
             if edge_mag[row, col] > edge_threshold:
                 ch = edge_to_char(float(edge_angle[row, col]))
             else:

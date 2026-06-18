@@ -1,6 +1,5 @@
 import os
 
-
 def save_txt(chars: list[list[str]], output_path: str):
     """Save ASCII art as plain text file."""
     os.makedirs(os.path.dirname(output_path), exist_ok=True)

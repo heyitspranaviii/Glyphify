@@ -20,7 +20,7 @@ def get_edges(img: Image.Image) -> tuple[np.ndarray, np.ndarray]:
     """Return edge magnitude and angle maps using Sobel filters."""
     gray = np.array(img.convert("L"), dtype=np.float32)
 
-    # Simple Sobel kernels applied via convolution
+    #Simple Sobel kernels applied via convolution
     from scipy.ndimage import convolve
     kx = np.array([[-1, 0, 1], [-2, 0, 2], [-1, 0, 1]], dtype=np.float32)
     ky = np.array([[-1, -2, -1], [0, 0, 0], [1, 2, 1]], dtype=np.float32)

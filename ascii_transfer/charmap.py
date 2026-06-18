@@ -1,5 +1,5 @@
 # Characters ordered from darkest to lightest visual weight
-CHARS = list('@#S%?*+;:,. ')
+CHARS = list('@#MW&8B0Oodxc+;:,. ')
 
 def brightness_to_char(value: float) -> str:
     """Map a brightness value (0.0=dark to 1.0=light) to a character."""

@@ -1,6 +1,6 @@
 import numpy as np
 from PIL import Image
-
+from scipy.ndimage import uniform_filter
 
 def extract_style(style_img: Image.Image, bins: int = 16) -> dict:
     """
@@ -14,34 +14,34 @@ def extract_style(style_img: Image.Image, bins: int = 16) -> dict:
 
     mean_brightness = float(gray.mean())
     std_brightness = float(gray.std())
-
-    # Local contrast as a proxy for texture busyness
-    from scipy.ndimage import uniform_filter
     local_mean = uniform_filter(gray, size=5)
     local_contrast = float(np.abs(gray - local_mean).mean())
 
     return {
-        "histogram": hist,          # shape of brightness distribution
-        "mean": mean_brightness,    # overall darkness/lightness
-        "std": std_brightness,      # contrast range
-        "texture": local_contrast,  # busyness / detail density
+        "histogram": hist,          #shape of brightness distribution
+        "mean": mean_brightness,    #overall darkness/lightness
+        "std": std_brightness,      #contrast range
+        "texture": local_contrast,  #busyness / detail density
     }
 
 
 def style_bias(brightness: float, style: dict) -> float:
     """
-    Remap a pixel's brightness based on the style's histogram.
-    Dark styles push values darker; high-texture styles add contrast.
+    Remap brightness based on style histogram.
+    Only applies remapping if the style has strong texture/contrast.
     """
+    # If style is flat/low contrast, don't remap much
+    if style["texture"] < 0.05:
+        return brightness
+
     bins = len(style["histogram"])
     bin_idx = min(int(brightness * bins), bins - 1)
 
-    # Cumulative density gives us histogram equalization toward style
     cdf = np.cumsum(style["histogram"])
     cdf = cdf / cdf[-1]
 
     remapped = float(cdf[bin_idx])
 
-    # Blend original with remapped based on texture intensity
-    blend = min(style["texture"] * 4, 0.8)
+    # Subtle blend(never more than 40% remapping)
+    blend = min(style["texture"] * 1.5, 0.25)
     return brightness * (1 - blend) + remapped * blend

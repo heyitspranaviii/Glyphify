@@ -2,10 +2,9 @@ import argparse
 import os
 from ascii_transfer import convert, save_txt, save_html
 
-
 def parse_args():
     parser = argparse.ArgumentParser(
-        description="ASCII Art Style Transfer — convert images to styled ASCII art"
+        description="ASCII Art Style Transfer:Convert images to styled ASCII art"
     )
     parser.add_argument("content", help="Path to the content image")
     parser.add_argument("--style", default=None, help="Path to the style image (optional)")
@@ -41,8 +40,6 @@ def main():
         edge_threshold=args.edge_threshold,
         colored=not args.no_color,
     )
-
-    # Derive output filenames from content image name
     base = os.path.splitext(os.path.basename(args.content))[0]
     if args.style:
         style_base = os.path.splitext(os.path.basename(args.style))[0]
