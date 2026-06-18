@@ -8,6 +8,7 @@ Feed it a photo and a style photo(optional) and Glyphify reconstructs the conten
 
 ## Project Structure
 
+```
 glyphify/
 │
 ├── ascii_transfer/
@@ -19,6 +20,7 @@ glyphify/
 │
 ├── main.py              →  CLI entry point
 └── requirements.txt
+```
 
 | File | What it does |
 |---|---|
