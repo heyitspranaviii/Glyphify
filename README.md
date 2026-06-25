@@ -52,7 +52,7 @@ pip install -r requirements.txt
 **Step 1: Clone the repo**
 
 ```bash
-git clone https://github.com/pranaviii29/Glyphify.git
+git clone https://github.com/heyitspranaviii/Glyphify.git
 cd glyphify
 ```
 
